@@ -64,7 +64,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         
         <!-- Quarkus Version -->
-        <quarkus.version>2.2.3.Final</quarkus.version>
+        <quarkus.version>2.5.2.Final</quarkus.version>
         
         <!-- Libraries -->
         <jackson.version>2.12.5</jackson.version>

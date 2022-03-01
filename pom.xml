@@ -68,6 +68,7 @@
         <module>config-index/deployment</module>
         <module>config-index/runtime</module>
         <module>config-index/integration-tests</module>
+        <module>config-index/dependent-integration-tests</module>
         <module>util</module>
         <module>logging</module>
         <module>maven-plugin</module>

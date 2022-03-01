@@ -17,6 +17,7 @@
 package apicurio.common.app.components.config.index.deployment;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -25,7 +26,7 @@ import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.Type;
 
-import apicurio.common.app.components.config.index.DynamicPropertiesInfoRecorder;
+import apicurio.common.app.components.config.index.DynamicPropertiesRecorder;
 import io.apicurio.common.apps.config.Dynamic;
 import io.apicurio.common.apps.config.DynamicConfigPropertyDef;
 import io.apicurio.common.apps.config.DynamicConfigPropertyList;
@@ -36,13 +37,14 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.runtime.RuntimeValue;
+
+import javax.inject.Singleton;
 
 class ConfigIndexProcessor {
 
     @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    void syntheticBean(DynamicPropertiesInfoRecorder recorder, BeanDiscoveryFinishedBuildItem beanDiscovery, BuildProducer<SyntheticBeanBuildItem> syntheticBeans) {
+    @Record(ExecutionTime.STATIC_INIT)
+    void createDynamicPropertiesListBean(DynamicPropertiesRecorder recorder, BeanDiscoveryFinishedBuildItem beanDiscovery, BuildProducer<SyntheticBeanBuildItem> syntheticBeans) {
         List<DynamicConfigPropertyDef> dynamicProperties = beanDiscovery.getInjectionPoints()
                 .stream()
                 .filter(ConfigIndexProcessor::isDynamicConfigProperty)
@@ -83,13 +85,13 @@ class ConfigIndexProcessor {
                 })
                 .collect(Collectors.toList());
 
-        final RuntimeValue<DynamicConfigPropertyList> dynamicPropertiesHolderRuntimeValue = recorder.initializePropertiesInfo(
+        final Supplier<DynamicConfigPropertyList> dynamicPropertiesHolderRuntimeValue = recorder.initializePropertiesInfo(
                 dynamicProperties);
 
         syntheticBeans.produce(SyntheticBeanBuildItem.configure(DynamicConfigPropertyList.class)
-                .runtimeValue(dynamicPropertiesHolderRuntimeValue)
+                .supplier(dynamicPropertiesHolderRuntimeValue)
+                .scope(Singleton.class)
                 .unremovable()
-                .setRuntimeInit()
                 .done());
     }
 

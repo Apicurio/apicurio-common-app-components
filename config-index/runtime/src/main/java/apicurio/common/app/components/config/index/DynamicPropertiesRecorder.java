@@ -17,6 +17,7 @@
 package apicurio.common.app.components.config.index;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDef;
 import io.apicurio.common.apps.config.DynamicConfigPropertyList;
@@ -24,11 +25,10 @@ import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
 @Recorder
-public class DynamicPropertiesInfoRecorder {
+public class DynamicPropertiesRecorder {
 
-    public RuntimeValue<DynamicConfigPropertyList> initializePropertiesInfo(
+    public Supplier<DynamicConfigPropertyList> initializePropertiesInfo(
             List<DynamicConfigPropertyDef> dynamicProperties) {
-
-        return new RuntimeValue<>(new DynamicConfigPropertyList(dynamicProperties));
+        return () -> new DynamicConfigPropertyList(dynamicProperties);
     }
 }

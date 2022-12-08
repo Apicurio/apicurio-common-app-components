@@ -23,8 +23,11 @@ import java.util.List;
  */
 public interface DynamicConfigStorage {
 
+    boolean isReady();
+
     /**
      * Should return the stored config property or null if not found.
+     *
      * @param propertyName the name of a property
      * @return the property value or null if not found
      */
@@ -32,18 +35,21 @@ public interface DynamicConfigStorage {
 
     /**
      * Sets a new value for a config property.
+     *
      * @param propertyDto the property name and value
      */
     public void setConfigProperty(DynamicConfigPropertyDto propertyDto);
 
     /**
      * Deletes a config property from storage.
+     *
      * @param propertyName the name of a property
      */
     public void deleteConfigProperty(String propertyName);
 
     /**
      * Gets a list of all stored config properties.
+     *
      * @return a list of stored properties
      */
     public List<DynamicConfigPropertyDto> getConfigProperties();

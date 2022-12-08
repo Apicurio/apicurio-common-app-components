@@ -16,14 +16,15 @@
 
 package io.apicurio.common.apps.config.impl;
 
+import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
+import io.apicurio.common.apps.config.DynamicConfigStorage;
+import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-
-import org.eclipse.microprofile.config.spi.ConfigSource;
-
-import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
-import io.apicurio.common.apps.config.DynamicConfigStorage;
 
 /**
  * A microprofile-config configsource.  This class uses the dynamic config storage to
@@ -35,11 +36,18 @@ import io.apicurio.common.apps.config.DynamicConfigStorage;
  */
 public class DynamicConfigSource implements ConfigSource {
 
+    private static final String LOG_PREFIX = "Could not get dynamic configuration value for {} in thread {}. ";
+
+    private static final Logger log = LoggerFactory.getLogger(DynamicConfigSource.class);
+
     private static Optional<DynamicConfigStorage> storage = Optional.empty();
+
     public static void setStorage(DynamicConfigStorage configStorage) {
         storage = Optional.of(configStorage);
     }
+
     private static Optional<DynamicConfigPropertyIndexImpl> configIndex = Optional.empty();
+
     public static void setConfigurationIndex(DynamicConfigPropertyIndexImpl index) {
         configIndex = Optional.of(index);
     }
@@ -63,10 +71,21 @@ public class DynamicConfigSource implements ConfigSource {
     @Override
     public String getValue(String propertyName) {
         String pname = normalizePropertyName(propertyName);
-        if (configIndex.isPresent() && configIndex.get().hasProperty(pname) && storage.isPresent()) {
-            DynamicConfigPropertyDto dto = storage.get().getConfigProperty(pname);
-            if (dto != null) {
-                return dto.getValue();
+        if (configIndex.isPresent() && configIndex.get().hasProperty(pname)) {
+            if (storage.isPresent()) {
+                if (storage.get().isReady()) { // TODO Merge the ifs after removing logging
+                    DynamicConfigPropertyDto dto = storage.get().getConfigProperty(pname);
+                    if (dto != null) {
+                        log.debug("Got dynamic configuration value {} for {} in thread {}", dto.getValue(), pname, Thread.currentThread().getName());
+                        return dto.getValue();
+                    } else {
+                        log.debug(LOG_PREFIX + "Storage returned null.", pname, Thread.currentThread().getName());
+                    }
+                } else {
+                    log.debug(LOG_PREFIX + "Storage is not ready.", pname, Thread.currentThread().getName());
+                }
+            } else {
+                log.debug(LOG_PREFIX + "Storage is not present.", pname, Thread.currentThread().getName());
             }
         }
         return null;

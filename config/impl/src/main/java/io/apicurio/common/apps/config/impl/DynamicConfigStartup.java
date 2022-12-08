@@ -16,12 +16,14 @@
 
 package io.apicurio.common.apps.config.impl;
 
+import io.apicurio.common.apps.config.DynamicConfigStorageAccessor;
+import io.quarkus.runtime.Startup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import io.apicurio.common.apps.config.DynamicConfigStorageAccessor;
-import io.quarkus.runtime.Startup;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -30,14 +32,20 @@ import io.quarkus.runtime.Startup;
 @Startup
 public class DynamicConfigStartup {
 
+    private static final Logger log = LoggerFactory.getLogger(DynamicConfigStartup.class);
+
     @Inject
     DynamicConfigStorageAccessor configStorageAccessor;
+
     @Inject
     DynamicConfigPropertyIndexImpl configIndex;
 
     @PostConstruct
     void onStart() {
+        log.debug("Initializing dynamic configuration source in thread {}", Thread.currentThread().getName());
+        configStorageAccessor.getConfigStorage().isReady();
         DynamicConfigSource.setStorage(configStorageAccessor.getConfigStorage());
         DynamicConfigSource.setConfigurationIndex(configIndex);
+        log.debug("Dynamic configuration source initialized in thread {}", Thread.currentThread().getName());
     }
 }

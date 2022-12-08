@@ -31,6 +31,11 @@ public class InMemoryDynamicConfigStorage implements DynamicConfigStorage {
     private final Map<String, String> properties = new HashMap<>();
 
     @Override
+    public boolean isReady() {
+        return true;
+    }
+
+    @Override
     public DynamicConfigPropertyDto getConfigProperty(String propertyName) {
         String value = properties.get(propertyName);
         return new DynamicConfigPropertyDto(propertyName, value);

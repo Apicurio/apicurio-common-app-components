@@ -23,8 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -127,7 +127,7 @@ public abstract class AppAuthenticationMechanism implements HttpAuthenticationMe
                     if (jwtToken != null) {
                         //If we manage to get a token from basic credentials, try to authenticate it using the fetched token using the identity provider manager
                         return identityProviderManager
-                                .authenticate(new TokenAuthenticationRequest(new AccessTokenCredential(jwtToken, context)));
+                                .authenticate(new TokenAuthenticationRequest(new AccessTokenCredential(jwtToken)));
                     }
                 }
             } else {
@@ -190,7 +190,7 @@ public abstract class AppAuthenticationMechanism implements HttpAuthenticationMe
         try (OidcAuth oidcAuth = new OidcAuth(httpClient, clientCredentials.getLeft(), clientCredentials.getRight())) {
             final String jwtToken = oidcAuth.authenticate();//If we manage to get a token from basic credentials, try to authenticate it using the fetched token using the identity provider manager
             return identityProviderManager
-                    .authenticate(new TokenAuthenticationRequest(new AccessTokenCredential(jwtToken, context)));
+                    .authenticate(new TokenAuthenticationRequest(new AccessTokenCredential(jwtToken)));
         }
     }
 }

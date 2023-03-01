@@ -16,8 +16,8 @@
 
 package apicurio.common.app.components.config.index.it;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import io.apicurio.common.apps.config.DynamicConfigStorage;
 import io.apicurio.common.apps.config.DynamicConfigStorageAccessor;

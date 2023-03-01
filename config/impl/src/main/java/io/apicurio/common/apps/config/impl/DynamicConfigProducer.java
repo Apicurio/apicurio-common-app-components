@@ -18,10 +18,10 @@ package io.apicurio.common.apps.config.impl;
 
 import java.util.function.Supplier;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.spi.InjectionPoint;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -42,7 +42,7 @@ public class DynamicConfigProducer extends ConfigProducer {
     @Produces
     @ConfigProperty
     @Dynamic
-    protected <T> Supplier<T> produceSupplierConfigValue(InjectionPoint ip) {
+    protected <T> Supplier<T> produceSupplierConfigProperty(InjectionPoint ip) {
         return () -> ConfigProducerUtil.getValue(ip, getConfig());
     }
 }

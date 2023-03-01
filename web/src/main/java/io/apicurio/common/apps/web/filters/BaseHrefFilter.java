@@ -21,17 +21,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * Note: simple filtering of response content - found on Stack Overflow here:
@@ -49,7 +49,7 @@ public class BaseHrefFilter implements Filter {
     private String to;
 
     /**
-     * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+     * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -66,8 +66,8 @@ public class BaseHrefFilter implements Filter {
     }
 
     /**
-     * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-     *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
+     * @see jakarta.servlet.Filter#doFilter(jakarta.servlet.ServletRequest,
+     *      jakarta.servlet.ServletResponse, jakarta.servlet.FilterChain)
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -88,7 +88,7 @@ public class BaseHrefFilter implements Filter {
     }
 
     /**
-     * @see javax.servlet.Filter#destroy()
+     * @see jakarta.servlet.Filter#destroy()
      */
     @Override
     public void destroy() {
@@ -114,7 +114,7 @@ public class BaseHrefFilter implements Filter {
         }
 
         /**
-         * @see javax.servlet.ServletOutputStream#isReady()
+         * @see jakarta.servlet.ServletOutputStream#isReady()
          */
         @Override
         public boolean isReady() {
@@ -122,7 +122,7 @@ public class BaseHrefFilter implements Filter {
         }
 
         /**
-         * @see javax.servlet.ServletOutputStream#setWriteListener(javax.servlet.WriteListener)
+         * @see jakarta.servlet.ServletOutputStream#setWriteListener(jakarta.servlet.WriteListener)
          */
         @Override
         public void setWriteListener(WriteListener writeListener) {

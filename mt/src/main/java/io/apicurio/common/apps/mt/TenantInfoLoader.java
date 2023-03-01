@@ -18,7 +18,7 @@ package io.apicurio.common.apps.mt;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * @author eric.wittmann@gmail.com

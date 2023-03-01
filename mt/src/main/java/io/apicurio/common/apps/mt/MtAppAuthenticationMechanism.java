@@ -18,8 +18,8 @@ package io.apicurio.common.apps.mt;
 
 import java.util.Optional;
 
-import javax.enterprise.context.control.ActivateRequestContext;
-import javax.inject.Inject;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

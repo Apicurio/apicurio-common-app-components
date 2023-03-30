@@ -39,4 +39,7 @@ public @interface Info {
     @Nonbinding
     String availableSince() default "";
 
+    @Nonbinding
+    String registryAvailableSince() default "";
+
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql.jdbi.query;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.exceptions.StorageException;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface Update extends Sql<Update> {
 
-    void bind(Query query, int idx);
+    int execute() throws StorageException;
 
+    void executeNoUpdate() throws StorageException;
 }

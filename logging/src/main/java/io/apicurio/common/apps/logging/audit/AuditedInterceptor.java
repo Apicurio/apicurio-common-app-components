@@ -17,20 +17,18 @@
 package io.apicurio.common.apps.logging.audit;
 
 
+import io.quarkus.security.identity.SecurityIdentity;
+import org.apache.commons.beanutils.BeanUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.Priority;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-
-import org.apache.commons.beanutils.BeanUtils;
-
-import io.quarkus.security.identity.SecurityIdentity;
 
 /**
  * Interceptor that executes around methods annotated with {@link Audited}
@@ -49,7 +47,7 @@ public class AuditedInterceptor {
     AuditLogService auditLogService;
 
     @Inject
-    SecurityIdentity securityIdentity;
+    Instance<SecurityIdentity> securityIdentity;
 
     @Inject
     Instance<AuditMetaDataExtractor> extractors;
@@ -60,8 +58,8 @@ public class AuditedInterceptor {
         Audited annotation = context.getMethod().getAnnotation(Audited.class);
         Map<String, String> metadata = new HashMap<>();
 
-        if (securityIdentity != null && !securityIdentity.isAnonymous()) {
-            metadata.put(AuditingConstants.KEY_PRINCIPAL_ID, securityIdentity.getPrincipal().getName());
+        if (securityIdentity.isResolvable() && !securityIdentity.get().isAnonymous()) {
+            metadata.put(AuditingConstants.KEY_PRINCIPAL_ID, securityIdentity.get().getPrincipal().getName());
         }
 
         extractMetaData(context, annotation, metadata);
@@ -86,6 +84,7 @@ public class AuditedInterceptor {
     /**
      * Extracts metadata from the context based on the "extractParameters" configuration of
      * the "Audited" annotation.
+     *
      * @param context
      * @param annotation
      * @param metadata

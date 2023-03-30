@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi.mappers;
+package io.apicurio.common.apps.storage.sql.jdbi.query.param;
 
-import java.sql.ResultSet;
+import io.apicurio.common.apps.storage.sql.jdbi.RuntimeSqlException;
+
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import javax.enterprise.context.ApplicationScoped;
+import java.sql.Types;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@ApplicationScoped
-public class IntegerMapper implements RowMapper<Integer> {
+public class LongSqlParam extends SqlParam<Long> {
 
-    @Override
-    public boolean supports(Class<?> klass) {
-        return Integer.class.equals(klass);
+    public LongSqlParam(int position, Long value) {
+        super(position, value);
     }
 
-    /**
-     * @see RowMapper#map(java.sql.ResultSet)
-     */
-    @Override
-    public Integer map(ResultSet rs) throws SQLException {
-        return rs.getInt(1);
+    public void bindTo(PreparedStatement statement) {
+        try {
+            if (value == null) {
+                statement.setNull(position + 1, Types.INTEGER);
+            } else {
+                statement.setLong(position + 1, value);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeSqlException(e);
+        }
     }
 }

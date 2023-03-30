@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.exceptions;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import java.util.Map;
 
 /**
  * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public class AlreadyExistsException extends StorageException {
 
-    void bind(Query query, int idx);
+    private static final long serialVersionUID = 5055445625652989500L;
 
+    public AlreadyExistsException(Map<String, String> context, Throwable cause) {
+        super("Resource already exists.", context, cause);
+    }
+
+    public AlreadyExistsException(String reason, Map<String, String> context, Throwable cause) {
+        super(reason, context, cause);
+    }
+
+    @Override
+    public boolean isRoot() {
+        return false;
+    }
 }

@@ -18,28 +18,24 @@ package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import io.apicurio.common.apps.storage.sql.jdbi.RowMapper;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author eric.wittmann@gmail.com
  */
+@ApplicationScoped
 public class LongMapper implements RowMapper<Long> {
 
-    public static final LongMapper instance = new LongMapper();
-
-    /**
-     * Constructor.
-     */
-    private LongMapper() {
+    @Override
+    public boolean supports(Class<?> klass) {
+        return Long.class.equals(klass);
     }
 
     /**
-     * @see io.apicurio.common.apps.storage.sql.jdbi.RowMapper#map(java.sql.ResultSet)
+     * @see RowMapper#map(java.sql.ResultSet)
      */
     @Override
     public Long map(ResultSet rs) throws SQLException {
         return rs.getLong(1);
     }
-
 }

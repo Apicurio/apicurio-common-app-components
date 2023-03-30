@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql.jdbi.query.param;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import java.sql.PreparedStatement;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public abstract class SqlParam<T> {
 
-    void bind(Query query, int idx);
+    protected final int position;
+    protected final T value;
 
+    protected SqlParam(int position, T value) {
+        this.position = position;
+        this.value = value;
+    }
+
+    public abstract void bindTo(PreparedStatement statement);
 }

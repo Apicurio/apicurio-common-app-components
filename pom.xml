@@ -74,6 +74,7 @@
         <module>maven-plugin</module>
         <module>web</module>
         <module>storage</module>
+        <module>storage-spi</module>
         <module>mt</module>
         <module>test</module>
     </modules>

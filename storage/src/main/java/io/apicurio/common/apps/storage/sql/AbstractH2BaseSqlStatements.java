@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import java.sql.SQLException;
 
 /**
  * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public abstract class AbstractH2BaseSqlStatements implements BaseSqlStatements {
 
-    void bind(Query query, int idx);
+    @Override
+    public boolean isPrimaryKeyViolation(SQLException error) {
+        return error.getMessage() != null && error.getMessage().contains("primary key violation");
+    }
 
+    @Override
+    public boolean isForeignKeyViolation(SQLException error) {
+        return error.getMessage() != null && error.getMessage().contains("Referential integrity constraint violation");
+    }
 }

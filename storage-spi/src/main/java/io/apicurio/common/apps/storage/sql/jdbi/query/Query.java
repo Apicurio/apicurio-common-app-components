@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql.jdbi.query;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.exceptions.StorageException;
+import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface Query extends Sql<Query> {
 
-    void bind(Query query, int idx);
+    Query setFetchSize(int size);
 
+    <T> MappedQuery<T> map(RowMapper<T> mapper) throws StorageException;
+
+    <T> MappedQuery<T> mapTo(Class<T> someClass) throws StorageException;
 }

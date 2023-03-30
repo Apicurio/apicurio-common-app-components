@@ -17,13 +17,27 @@
 package io.apicurio.common.apps.storage.sql.jdbi;
 
 import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.sql.jdbi.query.Update;
+
+import java.io.Closeable;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface Handle extends Closeable {
 
-    void bind(Query query, int idx);
+    /**
+     * Create a new Query from the given SQL.
+     * @param sql a SQL query statement
+     * @return a new Query object created from the SQL
+     */
+    Query createQuery(String sql);
+
+    /**
+     * Create a new Update statement from the given SQL.
+     * @param sql a SQL update statement
+     * @return a new Query object created from the SQL
+     */
+    Update createUpdate(String sql);
 
 }

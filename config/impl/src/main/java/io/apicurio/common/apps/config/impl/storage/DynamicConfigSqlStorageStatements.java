@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
-
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+package io.apicurio.common.apps.config.impl.storage;
 
 /**
  * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface DynamicConfigSqlStorageStatements {
 
-    void bind(Query query, int idx);
+    String selectConfigProperties();
 
+    String deleteConfigProperty();
+
+    String insertConfigProperty();
+
+    String deleteAllConfigProperties();
+
+    String selectConfigPropertyByName();
+
+    String selectTenantIdsByConfigModifiedOn();
 }

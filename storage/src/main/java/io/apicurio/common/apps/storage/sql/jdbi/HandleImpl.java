@@ -16,6 +16,11 @@
 
 package io.apicurio.common.apps.storage.sql.jdbi;
 
+import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.sql.jdbi.query.QueryImpl;
+import io.apicurio.common.apps.storage.sql.jdbi.query.Update;
+import io.apicurio.common.apps.storage.sql.jdbi.query.UpdateImpl;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -29,10 +34,15 @@ public class HandleImpl implements Handle {
 
     /**
      * Constructor.
+     *
      * @param connection a DB connection
      */
     public HandleImpl(Connection connection) {
         this.connection = connection;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     /**
@@ -52,8 +62,7 @@ public class HandleImpl implements Handle {
      */
     @Override
     public Query createQuery(String sql) {
-        QueryImpl query = new QueryImpl(connection, sql);
-        return query;
+        return new QueryImpl(connection, sql);
     }
 
     /**
@@ -61,8 +70,6 @@ public class HandleImpl implements Handle {
      */
     @Override
     public Update createUpdate(String sql) {
-        UpdateImpl update = new UpdateImpl(connection, sql);
-        return update;
+        return new UpdateImpl(connection, sql);
     }
-
 }

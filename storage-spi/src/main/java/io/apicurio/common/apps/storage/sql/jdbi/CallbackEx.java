@@ -16,14 +16,11 @@
 
 package io.apicurio.common.apps.storage.sql.jdbi;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
-
 /**
- * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
 @FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface CallbackEx<R, X extends Exception> {
 
-    void bind(Query query, int idx);
-
+    R call() throws X;
 }

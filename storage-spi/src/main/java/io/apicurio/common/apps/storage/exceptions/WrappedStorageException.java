@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.exceptions;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import lombok.Getter;
 
 /**
- * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public class WrappedStorageException extends RuntimeException {
 
-    void bind(Query query, int idx);
+    private static final long serialVersionUID = 8503794682205122835L;
 
+    @Getter
+    private final StorageException wrapped;
+
+    public WrappedStorageException(StorageException ex) {
+        wrapped = ex;
+    }
+
+    @Override
+    public String getMessage() {
+        return wrapped.getMessage();
+    }
+
+    @Override
+    public synchronized Throwable getCause() {
+        return wrapped.getCause();
+    }
 }

@@ -8,7 +8,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apicurio-common-app-components-storage</artifactId>
+    <artifactId>apicurio-common-app-components-storage-spi</artifactId>
 
     <dependencies>
 
@@ -20,43 +20,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>apicurio-common-app-components-storage-spi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>apicurio-common-app-components-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>apicurio-common-app-components-content</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-undertow</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jackson</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jdbc-h2</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-agroal</artifactId>
+            <groupId>io.quarkus.arc</groupId>
+            <artifactId>arc</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -77,7 +47,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -89,7 +58,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
         </plugins>
     </build>
 </project>

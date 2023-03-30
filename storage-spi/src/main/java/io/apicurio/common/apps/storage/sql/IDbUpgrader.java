@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.sql.jdbi.Handle;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface IDbUpgrader {
 
-    void bind(Query query, int idx);
+    /**
+     * Called by the {@link AbstractSqlStorage} class when upgrading the database.
+     *
+     * @param dbHandle a DB handle
+     * @throws Exception when the upgrade fails
+     */
+    public void upgrade(Handle dbHandle) throws Exception;
 
 }

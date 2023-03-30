@@ -18,28 +18,24 @@ package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import io.apicurio.common.apps.storage.sql.jdbi.RowMapper;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author eric.wittmann@gmail.com
  */
+@ApplicationScoped
 public class StringMapper implements RowMapper<String> {
 
-    public static final StringMapper instance = new StringMapper();
-
-    /**
-     * Constructor.
-     */
-    private StringMapper() {
+    @Override
+    public boolean supports(Class<?> klass) {
+        return String.class.equals(klass);
     }
 
     /**
-     * @see io.apicurio.common.apps.storage.sql.jdbi.RowMapper#map(java.sql.ResultSet)
+     * @see RowMapper#map(java.sql.ResultSet)
      */
     @Override
     public String map(ResultSet rs) throws SQLException {
         return rs.getString(1);
     }
-
 }

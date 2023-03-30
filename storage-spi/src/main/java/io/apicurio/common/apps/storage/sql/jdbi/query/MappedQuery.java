@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql.jdbi.query;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import io.apicurio.common.apps.storage.exceptions.StorageException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface MappedQuery<R> {
 
-    void bind(Query query, int idx);
+    R one() throws StorageException;
 
+    R first() throws StorageException;
+
+    Optional<R> findOne() throws StorageException;
+
+    Optional<R> findFirst() throws StorageException;
+
+    List<R> list() throws StorageException;
+
+    Stream<R> stream();
 }

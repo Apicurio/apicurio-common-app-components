@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi;
+package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
-import io.apicurio.common.apps.storage.sql.jdbi.query.Query;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
-@FunctionalInterface
-public interface SqlStatementVariableBinder {
+public interface RowMapper<T> {
 
-    void bind(Query query, int idx);
+    boolean supports(Class<?> klass);
 
+    T map(ResultSet rs) throws SQLException;
 }

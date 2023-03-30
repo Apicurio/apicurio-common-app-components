@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Red Hat
+ * Copyright 2022 Red Hat
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.storage.sql.jdbi.mappers;
+package io.apicurio.common.apps.config.impl.storage;
+
+import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
+import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,20 +25,23 @@ import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author eric.wittmann@gmail.com
+ * @author Jakub Senko <em>m@jsenko.net</em>
  */
 @ApplicationScoped
-public class IntegerMapper implements RowMapper<Integer> {
+public class DynamicConfigPropertyDtoMapper implements RowMapper<DynamicConfigPropertyDto> {
 
     @Override
     public boolean supports(Class<?> klass) {
-        return Integer.class.equals(klass);
+        return DynamicConfigPropertyDto.class.equals(klass);
     }
 
     /**
      * @see RowMapper#map(java.sql.ResultSet)
      */
     @Override
-    public Integer map(ResultSet rs) throws SQLException {
-        return rs.getInt(1);
+    public DynamicConfigPropertyDto map(ResultSet rs) throws SQLException {
+        String name = rs.getString("pname");
+        String value = rs.getString("pvalue");
+        return new DynamicConfigPropertyDto(name, value);
     }
 }

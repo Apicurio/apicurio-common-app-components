@@ -4,7 +4,7 @@
     <parent>
         <artifactId>apicurio-common-app-components</artifactId>
         <groupId>io.apicurio</groupId>
-        <version>0.2.0.CR2</version>
+        <version>0.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -28,10 +28,10 @@ import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
 import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.DeploymentException;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.spi.DeploymentException;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;

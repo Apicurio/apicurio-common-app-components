@@ -1,11 +1,10 @@
 package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
 import io.apicurio.common.apps.content.handle.ContentHandle;
-import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ContentHandleMapper implements RowMapper<ContentHandle> {

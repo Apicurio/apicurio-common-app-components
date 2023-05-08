@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import static java.util.Objects.requireNonNull;
 

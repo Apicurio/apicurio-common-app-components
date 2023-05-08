@@ -1,8 +1,8 @@
 package io.apicurio.common.apps.storage.exceptions;
 
 import io.quarkus.arc.DefaultBean;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author Jakub Senko <em>m@jsenko.net</em>

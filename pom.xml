@@ -95,7 +95,7 @@
         <quarkus.version>2.16.5.Final</quarkus.version>
 
         <!-- Libraries -->
-        <apicurio-common-rest-client.version>0.1.15.Final</apicurio-common-rest-client.version>
+        <apicurio-common-rest-client.version>0.1.18.Final</apicurio-common-rest-client.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <jackson.version>2.14.2</jackson.version>
         <sentry.version>1.7.30</sentry.version>

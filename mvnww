@@ -20,6 +20,8 @@ cp "$MAVEN_WRAPPER_PROPERTIES" "$MAVEN_WRAPPER_PROPERTIES.backup"
 echo "distributionUrl=file://$MAVEN_ZIP_TARGET" > $MAVEN_WRAPPER_PROPERTIES
 
 mkdir -p $HOME/.m2
+# Fallback to default location
+M2_HOME="${M2_HOME:-/usr/share/maven}"
 cp $M2_HOME/conf/settings.xml $HOME/.m2
 
 ./mvnw --version > /dev/null 2> /dev/null

@@ -6,12 +6,6 @@ set -euo pipefail
 #
 # USAGE: `export M2_HOME=$(./mvnww)`
 # and use ./mvnw for all of the following Maven commands
-# 
-# REQUIRED ENV VARIABLES:
-# - proxyUsername
-# - accessToken
-# - proxyServer
-# - proxyPort
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

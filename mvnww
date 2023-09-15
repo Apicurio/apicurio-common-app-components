@@ -28,4 +28,6 @@ echo "distributionUrl=file://${PWD}/${$MAVEN_ZIP_TARGET}" > $MAVEN_WRAPPER_PROPE
 mkdir -p $HOME/.m2
 cp $M2_HOME/conf/settings.xml $HOME/.m2
 
+./mvnw --version > /dev/null 2> /dev/null
+
 echo "$HOME/.m2"

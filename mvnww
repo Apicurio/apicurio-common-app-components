@@ -1,0 +1,33 @@
+#!/bin/sh
+set -euo pipefail
+
+# This script download through a proxy the zip distribution of Maven
+# drops it on the local filesystem and executes subsequent ./mvnw commands accordingly
+#
+# USAGE: `export M2_HOME=$(./mvnww)`
+# and use ./mvnw for all of the following Maven commands
+# 
+# REQUIRED ENV VARIABLES:
+# - proxyUsername
+# - accessToken
+# - proxyServer
+# - proxyPort
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+MAVEN_WRAPPER_PROPERTIES="$SCRIPT_DIR/.mvn/wrapper/maven-wrapper.properties"
+MAVEN_ZIP_TARGET="$SCRIPT_DIR/.mvn/wrapper/apache-maven-bin.zip"
+
+curl -sL --proxy "https://${proxyUsername}:${accessToken}@${proxyServer}:${proxyPort}" \
+  "$(cat ${MAVEN_WRAPPER_PROPERTIES} | grep "distributionUrl" | sed s'/distributionUrl=//')" \
+  --output $MAVEN_ZIP_TARGET
+
+cp $MAVEN_WRAPPER_PROPERTIES $MAVEN_WRAPPER_PROPERTIES.backup
+echo "distributionUrl=file://${PWD}/${$MAVEN_ZIP_TARGET}" > $MAVEN_WRAPPER_PROPERTIES
+
+mkdir -p $HOME/.m2
+cp $M2_HOME/conf/settings.xml $HOME/.m2
+
+./mvnw --version > /dev/null 2> /dev/null
+
+echo "$HOME/.m2"

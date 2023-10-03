@@ -18,7 +18,7 @@ package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import jakarta.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author eric.wittmann@gmail.com

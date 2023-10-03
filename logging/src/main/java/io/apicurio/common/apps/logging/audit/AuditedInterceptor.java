@@ -18,12 +18,12 @@ package io.apicurio.common.apps.logging.audit;
 
 
 import io.quarkus.security.identity.SecurityIdentity;
-import jakarta.annotation.Priority;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.interceptor.AroundInvoke;
-import jakarta.interceptor.Interceptor;
-import jakarta.interceptor.InvocationContext;
+import javax.annotation.Priority;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
 import org.apache.commons.beanutils.BeanUtils;
 
 import java.lang.reflect.InvocationTargetException;

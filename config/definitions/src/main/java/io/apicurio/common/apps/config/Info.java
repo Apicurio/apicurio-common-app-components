@@ -23,7 +23,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import jakarta.enterprise.util.Nonbinding;
+import javax.enterprise.util.Nonbinding;
 
 @Documented
 @Retention(RUNTIME)

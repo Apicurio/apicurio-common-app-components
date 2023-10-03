@@ -16,7 +16,7 @@
 
 package io.apicurio.common.apps.logging;
 
-import jakarta.interceptor.InterceptorBinding;
+import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

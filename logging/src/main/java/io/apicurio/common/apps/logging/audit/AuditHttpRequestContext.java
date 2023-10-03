@@ -16,7 +16,7 @@
 
 package io.apicurio.common.apps.logging.audit;
 
-import jakarta.enterprise.context.RequestScoped;
+import javax.enterprise.context.RequestScoped;
 
 @RequestScoped
 public class AuditHttpRequestContext implements AuditHttpRequestInfo {

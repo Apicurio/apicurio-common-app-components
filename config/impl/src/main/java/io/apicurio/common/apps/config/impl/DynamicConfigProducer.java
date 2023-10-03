@@ -18,10 +18,10 @@ package io.apicurio.common.apps.config.impl;
 
 import java.util.function.Supplier;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

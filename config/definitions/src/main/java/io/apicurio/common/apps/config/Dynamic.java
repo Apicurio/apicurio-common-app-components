@@ -23,8 +23,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import jakarta.enterprise.util.Nonbinding;
-import jakarta.inject.Qualifier;
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
 
 /**
  * @author eric.wittmann@gmail.com

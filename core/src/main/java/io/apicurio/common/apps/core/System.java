@@ -19,8 +19,8 @@ package io.apicurio.common.apps.core;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

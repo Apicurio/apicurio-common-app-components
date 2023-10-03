@@ -32,9 +32,9 @@ import io.smallrye.common.constraint.NotNull;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 

@@ -18,7 +18,7 @@ package io.apicurio.common.apps.logging.sentry;
 
 import java.util.logging.LogManager;
 
-import jakarta.enterprise.event.Observes;
+import javax.enterprise.event.Observes;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

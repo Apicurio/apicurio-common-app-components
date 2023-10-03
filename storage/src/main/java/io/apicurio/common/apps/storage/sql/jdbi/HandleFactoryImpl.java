@@ -25,8 +25,8 @@ import io.apicurio.common.apps.storage.sql.BaseSqlStatements;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  * @author eric.wittmann@gmail.com

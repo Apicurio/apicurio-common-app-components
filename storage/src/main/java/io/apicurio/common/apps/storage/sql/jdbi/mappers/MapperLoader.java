@@ -4,10 +4,10 @@ import io.quarkus.runtime.StartupEvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class MapperLoader {

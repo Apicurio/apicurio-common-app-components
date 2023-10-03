@@ -31,8 +31,8 @@ import io.apicurio.tenantmanager.client.exception.ApicurioTenantNotFoundExceptio
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import static io.apicurio.common.apps.multitenancy.FaultToleranceConstants.TIMEOUT_MS;
 

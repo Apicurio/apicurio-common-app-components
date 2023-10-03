@@ -18,10 +18,10 @@ package io.apicurio.common.apps.web.servlets;
 
 import java.io.IOException;
 
-import jakarta.servlet.GenericServlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import javax.servlet.GenericServlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
  * A simple servlet that forwards everything to /index.html.
@@ -32,7 +32,7 @@ public class ReactAppServlet extends GenericServlet {
     private static final long serialVersionUID = 4259630009438256847L;
 
     /**
-     * @see jakarta.servlet.GenericServlet#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)
+     * @see javax.servlet.GenericServlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
      */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {

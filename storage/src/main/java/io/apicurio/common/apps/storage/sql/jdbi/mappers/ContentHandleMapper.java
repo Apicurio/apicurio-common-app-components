@@ -1,7 +1,7 @@
 package io.apicurio.common.apps.storage.sql.jdbi.mappers;
 
 import io.apicurio.common.apps.content.handle.ContentHandle;
-import jakarta.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.ApplicationScoped;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

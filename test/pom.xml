@@ -4,7 +4,7 @@
     <parent>
         <artifactId>apicurio-common-app-components</artifactId>
         <groupId>io.apicurio</groupId>
-        <version>0.2.2-SNAPSHOT</version>
+        <version>0.1.22-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-admin-client-jakarta</artifactId>
+            <artifactId>keycloak-admin-client</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

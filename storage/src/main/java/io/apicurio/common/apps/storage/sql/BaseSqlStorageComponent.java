@@ -297,7 +297,7 @@ public class BaseSqlStorageComponent {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW) // We want a fresh transaction for each retry
-    private Optional<Long> tryNextSequenceValue(String sequenceKey) throws StorageException {
+    public Optional<Long> tryNextSequenceValue(String sequenceKey) throws StorageException {
         // Get the current value if exists
         Optional<Long> currentValue = handles.withHandleNoExceptionMapped(handle ->
                 handle.createQuery(config.sqlStatements.getSequenceValue())

@@ -162,7 +162,6 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
             if (credentialsFromContext != null) {
                 OidcAuth oidcAuth = new OidcAuth(httpClient, clientId, clientSecret.get());
                 String jwtToken = oidcAuth.obtainAccessTokenPasswordGrant(credentialsFromContext.getLeft(), credentialsFromContext.getRight());
-                oidcAuth.close();
                 if (jwtToken != null) {
                     //If we manage to get a token from basic credentials, try to authenticate it using the fetched token using the identity provider manager
                     context.request().headers().set("Authorization", "Bearer " + jwtToken);

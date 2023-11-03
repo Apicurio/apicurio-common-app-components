@@ -23,7 +23,6 @@ import io.apicurio.common.apps.storage.sql.jdbi.mappers.RowMapper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * @author eric.wittmann@gmail.com

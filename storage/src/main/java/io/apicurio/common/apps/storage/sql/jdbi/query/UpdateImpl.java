@@ -21,7 +21,6 @@ import io.apicurio.common.apps.storage.exceptions.StorageException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * @author eric.wittmann@gmail.com

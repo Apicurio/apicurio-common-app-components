@@ -25,8 +25,6 @@ import static java.util.Objects.requireNonNull;
 @ApplicationScoped
 public class BaseSqlStorageComponent {
 
-    public static String DEFAULT_TENANT_ID = "default"; // TODO Support multi-tenancy
-
     private static final String DB_PROPERTY_VERSION = "db_version";
 
     private HandleFactory handles;
@@ -273,8 +271,7 @@ public class BaseSqlStorageComponent {
             // In case the database supports atomic increments
             return handles.withHandleNoExceptionMapped(handle ->
                     handle.createQuery(config.sqlStatements.getNextSequenceValue())
-                            .bind(0, DEFAULT_TENANT_ID)
-                            .bind(1, sequenceKey)
+                            .bind(0, sequenceKey)
                             .mapTo(Long.class)
                             .one()
             );
@@ -301,8 +298,7 @@ public class BaseSqlStorageComponent {
         // Get the current value if exists
         Optional<Long> currentValue = handles.withHandleNoExceptionMapped(handle ->
                 handle.createQuery(config.sqlStatements.getSequenceValue())
-                        .bind(0, DEFAULT_TENANT_ID)
-                        .bind(1, sequenceKey)
+                        .bind(0, sequenceKey)
                         .mapTo(Long.class)
                         .findOne()
         );
@@ -312,9 +308,8 @@ public class BaseSqlStorageComponent {
             var affected = handles.withHandle(handle ->
                     handle.createUpdate(config.sqlStatements.casSequenceValue())
                             .bind(0, newValue)
-                            .bind(1, DEFAULT_TENANT_ID)
-                            .bind(2, sequenceKey)
-                            .bind(3, currentValue.get())
+                            .bind(1, sequenceKey)
+                            .bind(2, currentValue.get())
                             .execute());
             if (affected == 1) {
                 return Optional.of(newValue);
@@ -325,9 +320,8 @@ public class BaseSqlStorageComponent {
             // Try to insert an initial value
             handles.withHandle(handle ->
                     handle.createUpdate(config.sqlStatements.insertSequenceValue())
-                            .bind(0, DEFAULT_TENANT_ID)
-                            .bind(1, sequenceKey)
-                            .bind(2, 1)
+                            .bind(0, sequenceKey)
+                            .bind(1, 1)
                             .execute());
             return Optional.of(1L);
         }

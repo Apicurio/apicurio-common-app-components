@@ -42,7 +42,6 @@ import static java.util.Objects.requireNonNull;
 @ApplicationScoped
 public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
 
-    public static String DEFAULT_TENANT_ID = "default"; // TODO Support multi-tenancy
     public static String RESOURCE_CONTEXT_KEY_DCP = "dynamic configuration property";
 
     private Logger log;
@@ -80,7 +79,6 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
             String sql = sqlStatements.selectConfigProperties();
             return handle.createQuery(sql)
                     .setContext(RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP)
-                    .bind(0, DEFAULT_TENANT_ID)
                     .map(new DynamicConfigPropertyDtoMapper())
                     .list()
                     .stream()
@@ -99,8 +97,7 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
             Optional<DynamicConfigPropertyDto> res = handle.createQuery(sql)
                     .setContext(RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP)
                     .setContext(RESOURCE_IDENTIFIER_CONTEXT_KEY, propertyName)
-                    .bind(0, DEFAULT_TENANT_ID)
-                    .bind(1, propertyName)
+                    .bind(0, propertyName)
                     .map(new DynamicConfigPropertyDtoMapper())
                     .findOne();
 
@@ -126,8 +123,7 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
             handle.createUpdate(sql)
                     .setContext(RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP)
                     .setContext(RESOURCE_IDENTIFIER_CONTEXT_KEY, propertyName)
-                    .bind(0, DEFAULT_TENANT_ID)
-                    .bind(1, propertyName)
+                    .bind(0, propertyName)
                     .execute();
 
             // Then create the row again with the new value
@@ -135,10 +131,9 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
             handle.createUpdate(sql)
                     .setContext(RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP)
                     .setContext(RESOURCE_IDENTIFIER_CONTEXT_KEY, propertyName)
-                    .bind(0, DEFAULT_TENANT_ID)
-                    .bind(1, propertyName)
-                    .bind(2, propertyValue)
-                    .bind(3, System.currentTimeMillis())
+                    .bind(0, propertyName)
+                    .bind(1, propertyValue)
+                    .bind(2, System.currentTimeMillis())
                     .execute();
 
             return null;
@@ -154,8 +149,7 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
             int rows = handle.createUpdate(sql)
                     .setContext(RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP)
                     .setContext(RESOURCE_IDENTIFIER_CONTEXT_KEY, propertyName)
-                    .bind(0, DEFAULT_TENANT_ID)
-                    .bind(1, propertyName)
+                    .bind(0, propertyName)
                     .execute();
 
             if (rows == 0) {

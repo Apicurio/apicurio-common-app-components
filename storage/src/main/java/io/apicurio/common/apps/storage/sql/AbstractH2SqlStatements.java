@@ -22,15 +22,15 @@ import java.sql.SQLException;
  * @author eric.wittmann@gmail.com
  * @author Jakub Senko <em>m@jsenko.net</em>
  */
-public abstract class AbstractPostgresBaseSqlStatements implements BaseSqlStatements {
+public abstract class AbstractH2SqlStatements implements SqlStatements {
 
     @Override
-    public boolean isPrimaryKeyViolation(SQLException ex) {
-        return ex.getMessage() != null && ex.getMessage().contains("violates unique constraint");
+    public boolean isPrimaryKeyViolation(SQLException error) {
+        return error.getMessage() != null && error.getMessage().contains("primary key violation");
     }
 
     @Override
-    public boolean isForeignKeyViolation(SQLException ex) {
-        return ex.getMessage() != null && ex.getMessage().contains("violates foreign key constraint");
+    public boolean isForeignKeyViolation(SQLException error) {
+        return error.getMessage() != null && error.getMessage().contains("Referential integrity constraint violation");
     }
 }

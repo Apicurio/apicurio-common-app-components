@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
  * @author Jakub Senko <em>m@jsenko.net</em>
  */
 @ApplicationScoped
-public class BaseSqlStorageComponent {
+public class SqlStorageComponent {
 
     private static final String DB_PROPERTY_VERSION = "db_version";
 
@@ -42,7 +42,7 @@ public class BaseSqlStorageComponent {
 
         private Boolean supportsAtomicSequenceIncrement;
 
-        private BaseSqlStatements sqlStatements;
+        private SqlStatements sqlStatements;
 
         private String ddlDirRootPath;
 

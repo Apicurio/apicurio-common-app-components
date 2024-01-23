@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.apicurio.common.apps.config.impl.storage;
+package io.apicurio.common.apps.config;
 
 /**
  * @author eric.wittmann@gmail.com

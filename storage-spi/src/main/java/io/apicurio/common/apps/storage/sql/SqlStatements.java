@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * @author eric.wittmann@gmail.com
  * @author Jakub Senko <em>m@jsenko.net</em>
  */
-public interface BaseSqlStatements {
+public interface SqlStatements {
 
     /**
      * Gets the database type associated with these statements.

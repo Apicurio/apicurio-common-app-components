@@ -17,10 +17,12 @@
 package io.apicurio.common.apps.config.impl.storage;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
+import io.apicurio.common.apps.config.DynamicConfigSqlStorageStatements;
 import io.apicurio.common.apps.config.DynamicConfigStorage;
 import io.apicurio.common.apps.logging.LoggerProducer;
 import io.apicurio.common.apps.storage.exceptions.NotFoundException;
 import io.apicurio.common.apps.storage.sql.jdbi.HandleFactory;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 
 import java.time.Instant;
@@ -29,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import jakarta.enterprise.context.ApplicationScoped;
 
 import static io.apicurio.common.apps.storage.sql.jdbi.query.Sql.RESOURCE_CONTEXT_KEY;
 import static io.apicurio.common.apps.storage.sql.jdbi.query.Sql.RESOURCE_IDENTIFIER_CONTEXT_KEY;
@@ -101,12 +102,7 @@ public class DynamicConfigSqlStorageComponent implements DynamicConfigStorage {
                     .map(new DynamicConfigPropertyDtoMapper())
                     .findOne();
 
-            return res.orElseThrow(() ->
-                    new NotFoundException("Dynamic configuration property not found: " + propertyName, Map.of(
-                            RESOURCE_CONTEXT_KEY, RESOURCE_CONTEXT_KEY_DCP,
-                            RESOURCE_IDENTIFIER_CONTEXT_KEY, propertyName
-                    ))
-            );
+            return res.orElse(null);
         });
     }
 

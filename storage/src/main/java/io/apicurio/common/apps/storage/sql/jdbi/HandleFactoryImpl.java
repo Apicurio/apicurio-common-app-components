@@ -20,12 +20,13 @@ import io.agroal.api.AgroalDataSource;
 import io.apicurio.common.apps.storage.exceptions.AlreadyExistsException;
 import io.apicurio.common.apps.storage.exceptions.StorageException;
 import io.apicurio.common.apps.storage.exceptions.StorageExceptionMapper;
-import io.apicurio.common.apps.storage.sql.BaseSqlStatements;
+import io.apicurio.common.apps.storage.sql.SqlStatements;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -34,10 +35,12 @@ import jakarta.inject.Inject;
 public class HandleFactoryImpl implements HandleFactory {
 
     @Inject
+    @Named("apicurioDatasource")
     AgroalDataSource dataSource;
 
     @Inject
-    BaseSqlStatements sqlStatements;
+    @Named("apicurioSqlStatements")
+    SqlStatements sqlStatements;
 
     @Inject
     StorageExceptionMapper exceptionMapper;

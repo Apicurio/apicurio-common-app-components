@@ -84,8 +84,12 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     Supplier<Boolean> fakeBasicAuthEnabled;
 
     @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration", defaultValue = "10")
-    @Info(category = "auth", description = "Client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final")
+    @Info(category = "auth", description = "Default client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final")
     Integer accessTokenExpiration;
+
+    @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration-offset", defaultValue = "10")
+    @Info(category = "auth", description = "Client credentials token expiration offset from JWT expiration.", availableSince = "0.2.7", registryAvailableSince = "2.5.9.Final")
+    Integer accessTokenExpirationOffset;
 
     @ConfigProperty(name = "app.authn.basic-auth.scope")
     @Info(category = "auth", description = "Client credentials scope.", availableSince = "0.1.21-SNAPSHOT", registryAvailableSince = "2.5.0.Final")
@@ -280,8 +284,8 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
         try {
             JsonWebToken parsedToken = jwtParser.parseOnly(jwtToken);
             
-            // Convert the expiration to an Instant, and subtract 10s (we want to stop using it 10s before it expires).
-            Instant expirationInstant = Instant.ofEpochSecond(parsedToken.getExpirationTime()).minusSeconds(30);
+            // Convert the expiration to an Instant, and subtract the offset (we want to stop using it N seconds before it expires).
+            Instant expirationInstant = Instant.ofEpochSecond(parsedToken.getExpirationTime()).minusSeconds(accessTokenExpirationOffset);
             Instant nowInstant = Instant.now();
             
             // Convert the expiration instant to a duration

@@ -102,7 +102,7 @@
         <junit.version>5.10.2</junit.version>
         <keycloak.testcontainers.version>1.9.0</keycloak.testcontainers.version>
         <keycloak-admin-client.version>21.1.2</keycloak-admin-client.version>
-        <wiremock.version>2.35.1</wiremock.version>
+        <wiremock.version>2.35.2</wiremock.version>
 
         <!-- Plugins -->
         <version.maven-javadoc-plugin>3.6.3</version.maven-javadoc-plugin>

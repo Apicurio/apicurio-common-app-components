@@ -16,6 +16,24 @@
 
 package io.apicurio.common.apps.auth.authn;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.slf4j.Logger;
+
 import io.apicurio.common.apps.config.Dynamic;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.common.apps.logging.audit.AuditHttpRequestContext;
@@ -40,26 +58,16 @@ import io.quarkus.vertx.http.runtime.security.ChallengeData;
 import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
 import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
 import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
+import io.smallrye.jwt.auth.principal.DefaultJWTParser;
+import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 import jakarta.annotation.PostConstruct;
-import jakarta.inject.Inject;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Retry;
-import org.slf4j.Logger;
-
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import jakarta.inject.Inject;
 
 @Alternative
 @Priority(1)
@@ -76,8 +84,12 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     Supplier<Boolean> fakeBasicAuthEnabled;
 
     @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration", defaultValue = "10")
-    @Info(category = "auth", description = "Client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final")
+    @Info(category = "auth", description = "Default client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final")
     Integer accessTokenExpiration;
+
+    @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration-offset", defaultValue = "10")
+    @Info(category = "auth", description = "Client credentials token expiration offset from JWT expiration.", availableSince = "0.2.7", registryAvailableSince = "2.5.9.Final")
+    Integer accessTokenExpirationOffset;
 
     @ConfigProperty(name = "app.authn.basic-auth.scope")
     @Info(category = "auth", description = "Client credentials scope.", availableSince = "0.1.21-SNAPSHOT", registryAvailableSince = "2.5.0.Final")
@@ -111,6 +123,9 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Inject
     Vertx vertx;
+    
+    @Inject
+    DefaultJWTParser jwtParser;
 
     private BearerAuthenticationMechanism bearerAuth;
     private ApicurioHttpClient httpClient;
@@ -250,11 +265,36 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
         OidcAuth oidcAuth = new OidcAuth(httpClient, clientCredentials.getLeft(), clientCredentials.getRight(), Duration.ofSeconds(1), scope.orElse(null));
         try {
             String jwtToken = oidcAuth.authenticate();//If we manage to get a token from basic credentials, try to authenticate it using the fetched token using the identity provider manager
-            cachedAccessTokens.put(credentialsHash, new WrappedValue<>(Duration.ofMinutes(accessTokenExpiration), Instant.now(), jwtToken));
+            cachedAccessTokens.put(credentialsHash, new WrappedValue<>(getAccessTokenExpiration(jwtToken), Instant.now(), jwtToken));
             return jwtToken;
         } catch (NotAuthorizedException | ForbiddenException ex) {
-            cachedAuthFailures.put(credentialsHash, new WrappedValue<>(Duration.ofMinutes(accessTokenExpiration), Instant.now(), ex));
+            cachedAuthFailures.put(credentialsHash, new WrappedValue<>(getAccessTokenExpiration(null), Instant.now(), ex));
             throw ex;
+        }
+    }
+
+    /**
+     * Figure out how long to cache a given JWT.  The token can be null (if authentication fails), in which case
+     * the configured default expiration time will be used.
+     */
+    protected Duration getAccessTokenExpiration(String jwtToken) {
+        if (jwtToken == null) {
+            return Duration.ofMinutes(accessTokenExpiration);
+        }
+        try {
+            JsonWebToken parsedToken = jwtParser.parseOnly(jwtToken);
+            
+            // Convert the expiration to an Instant, and subtract the offset (we want to stop using it N seconds before it expires).
+            Instant expirationInstant = Instant.ofEpochSecond(parsedToken.getExpirationTime()).minusSeconds(accessTokenExpirationOffset);
+            Instant nowInstant = Instant.now();
+            
+            // Convert the expiration instant to a duration
+            Duration timeUntilExpiration = Duration.between(nowInstant, expirationInstant);
+            return timeUntilExpiration;
+        } catch (ParseException e) {
+            // Could not parse the JWT, just return the default expiration.
+            log.error("Error parsing JWT from auth server (client credentials grant).", e);
+            return Duration.ofMinutes(accessTokenExpiration);
         }
     }
 

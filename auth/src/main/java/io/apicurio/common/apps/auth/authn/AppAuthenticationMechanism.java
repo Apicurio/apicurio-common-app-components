@@ -48,7 +48,6 @@ import io.apicurio.rest.client.auth.exception.ForbiddenException;
 import io.apicurio.rest.client.auth.exception.NotAuthorizedException;
 import io.apicurio.rest.client.error.ApicurioRestClientException;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
-import io.quarkus.oidc.runtime.BearerAuthenticationMechanism;
 import io.quarkus.oidc.runtime.OidcAuthenticationMechanism;
 import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -123,11 +122,10 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Inject
     Vertx vertx;
-    
+
     @Inject
     DefaultJWTParser jwtParser;
 
-    private BearerAuthenticationMechanism bearerAuth;
     private ApicurioHttpClient httpClient;
 
     private ConcurrentHashMap<String, WrappedValue<String>> cachedAccessTokens;
@@ -139,7 +137,6 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
             cachedAccessTokens = new ConcurrentHashMap<>();
             cachedAuthFailures = new ConcurrentHashMap<>();
             httpClient = new VertxHttpClientProvider(vertx).create(authServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
-            bearerAuth = new BearerAuthenticationMechanism();
         }
     }
 
@@ -225,7 +222,7 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Override
     public Uni<ChallengeData> getChallenge(RoutingContext context) {
-        return bearerAuth.getChallenge(context);
+        return oidcAuthenticationMechanism.getChallenge(context);
     }
 
     @Override
@@ -283,11 +280,11 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
         }
         try {
             JsonWebToken parsedToken = jwtParser.parseOnly(jwtToken);
-            
+
             // Convert the expiration to an Instant, and subtract the offset (we want to stop using it N seconds before it expires).
             Instant expirationInstant = Instant.ofEpochSecond(parsedToken.getExpirationTime()).minusSeconds(accessTokenExpirationOffset);
             Instant nowInstant = Instant.now();
-            
+
             // Convert the expiration instant to a duration
             Duration timeUntilExpiration = Duration.between(nowInstant, expirationInstant);
             return timeUntilExpiration;

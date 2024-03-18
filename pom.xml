@@ -6,7 +6,7 @@
     <groupId>io.apicurio</groupId>
     <artifactId>apicurio-common-app-components</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.8-SNAPSHOT</version>
+    <version>1.1.0.CR1</version>
     <name>apicurio-common-app-components</name>
 
     <url>https://www.apicur.io/</url>

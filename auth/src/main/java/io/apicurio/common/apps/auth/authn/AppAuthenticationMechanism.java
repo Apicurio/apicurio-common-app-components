@@ -73,41 +73,41 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
-    @ConfigProperty(name = "app.authn.enabled", defaultValue = "false")
+    @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
     @Info(category = "auth", description = "Enable auth", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.0.0.Final")
     boolean authEnabled;
 
-    @Dynamic(label = "HTTP basic authentication", description = "When selected, users are permitted to authenticate using HTTP basic authentication (in addition to OAuth).", requires = "app.authn.enabled=true")
-    @ConfigProperty(name = "app.authn.basic-auth-client-credentials.enabled", defaultValue = "false")
+    @Dynamic(label = "HTTP basic authentication", description = "When selected, users are permitted to authenticate using HTTP basic authentication (in addition to OAuth).", requires = "apicurio.authn.enabled=true")
+    @ConfigProperty(name = "apicurio.authn.basic-client-credentials.enabled", defaultValue = "false")
     @Info(category = "auth", description = "Enable basic auth client credentials", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.1.0.Final")
     Supplier<Boolean> fakeBasicAuthEnabled;
 
-    @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration", defaultValue = "10")
+    @ConfigProperty(name = "apicurio.authn.basic-client-credentials.cache-expiration", defaultValue = "10")
     @Info(category = "auth", description = "Default client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final")
     Integer accessTokenExpiration;
 
-    @ConfigProperty(name = "app.authn.basic-auth-client-credentials.cache-expiration-offset", defaultValue = "10")
+    @ConfigProperty(name = "apicurio.authn.basic-client-credentials.cache-expiration-offset", defaultValue = "10")
     @Info(category = "auth", description = "Client credentials token expiration offset from JWT expiration.", availableSince = "0.2.7", registryAvailableSince = "2.5.9.Final")
     Integer accessTokenExpirationOffset;
 
-    @ConfigProperty(name = "app.authn.basic-auth.scope")
+    @ConfigProperty(name = "apicurio.authn.basic.scope")
     @Info(category = "auth", description = "Client credentials scope.", availableSince = "0.1.21-SNAPSHOT", registryAvailableSince = "2.5.0.Final")
     Optional<String> scope;
 
-    @ConfigProperty(name = "app.authn.audit.log.prefix", defaultValue = "audit")
+    @ConfigProperty(name = "apicurio.authn.audit.log.prefix", defaultValue = "audit")
     @Info(category = "auth", description = "Prefix used for application audit logging.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6")
 
     String auditLogPrefix;
 
-    @ConfigProperty(name = "app.authn.token.endpoint", defaultValue = "")
-    @Info(category = "auth", description = "Authentication server url.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.1.0.Final")
+    @ConfigProperty(name = "quarkus.oidc.token-path", defaultValue = "")
+    @Info(category = "auth", description = "Authentication server token endpoint.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.1.0.Final")
     String authServerUrl;
 
-    @ConfigProperty(name = "app.authn.client-secret")
+    @ConfigProperty(name = "quarkus.oidc.client-secret")
     @Info(category = "auth", description = "Client secret used by the server for authentication.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.1.0.Final")
     Optional<String> clientSecret;
 
-    @ConfigProperty(name = "app.authn.client-id", defaultValue = "")
+    @ConfigProperty(name = "quarkus.oidc.client-id", defaultValue = "")
     @Info(category = "auth", description = "Client identifier used by the server for authentication.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.0.0.Final")
     String clientId;
 

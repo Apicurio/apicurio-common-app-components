@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class PropertiesUtil {
     private static final Logger log = LoggerFactory.getLogger(PropertiesUtil.class);
     // explicit debug, since properties can have unresolved env vars
-    private static final boolean debug = Boolean.getBoolean("app.debug");
+    private static final boolean debug = Boolean.getBoolean("apicurio.debug");
 
     /**
      * Filter/strip prefixes from configuration properties.

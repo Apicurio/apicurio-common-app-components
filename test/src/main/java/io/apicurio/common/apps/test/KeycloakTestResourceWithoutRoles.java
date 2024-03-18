@@ -37,10 +37,10 @@ public class KeycloakTestResourceWithoutRoles implements QuarkusTestResourceLife
         server.start();
 
         Map<String, String> props = new HashMap<>();
-        props.put("app.keycloak.url", server.authServerUrl);
-        props.put("app.keycloak.realm", "test");
-        props.put("app.authn.enabled", "true");
-        props.put("app.authn.client-secret", "test1");
+        props.put("apicurio.keycloak.url", server.authServerUrl);
+        props.put("apicurio.keycloak.realm", "test");
+        props.put("apicurio.authn.enabled", "true");
+        props.put("apicurio.authn.client-secret", "test1");
 
         //set tenant manager properties
         props.put("tenant-manager.auth.enabled", "true");

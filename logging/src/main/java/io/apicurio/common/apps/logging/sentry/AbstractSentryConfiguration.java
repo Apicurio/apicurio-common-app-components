@@ -34,7 +34,7 @@ public abstract class AbstractSentryConfiguration {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @ConfigProperty(name = "app.enable.sentry", defaultValue = "false")
+    @ConfigProperty(name = "apicurio.enable.sentry", defaultValue = "false")
     Boolean enableSentry;
 
     public void onStart(@Observes StartupEvent ev) throws Exception {

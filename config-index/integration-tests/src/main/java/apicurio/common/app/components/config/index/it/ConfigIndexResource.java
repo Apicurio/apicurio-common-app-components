@@ -48,26 +48,26 @@ public class ConfigIndexResource {
     Config config;
 
     @Dynamic
-    @ConfigProperty(name = "app.properties.dynamic.string", defaultValue = "_DEFAULT_")
+    @ConfigProperty(name = "apicurio.properties.dynamic.string", defaultValue = "_DEFAULT_")
     Supplier<String> dynamicString;
 
     @Dynamic
-    @ConfigProperty(name = "app.properties.dynamic.int", defaultValue = "0")
+    @ConfigProperty(name = "apicurio.properties.dynamic.int", defaultValue = "0")
     Supplier<Integer> dynamicInt;
 
     @Dynamic
-    @ConfigProperty(name = "app.properties.dynamic.long", defaultValue = "17")
+    @ConfigProperty(name = "apicurio.properties.dynamic.long", defaultValue = "17")
     Supplier<Long> dynamicLong;
 
     @Dynamic
-    @ConfigProperty(name = "app.properties.dynamic.bool", defaultValue = "false")
+    @ConfigProperty(name = "apicurio.properties.dynamic.bool", defaultValue = "false")
     Supplier<Boolean> dynamicBool;
 
-    @Dynamic(requires = "app.properties.dynamic.bool=true")
-    @ConfigProperty(name = "app.properties.dynamic.bool.dep", defaultValue = "false")
+    @Dynamic(requires = "apicurio.properties.dynamic.bool=true")
+    @ConfigProperty(name = "apicurio.properties.dynamic.bool.dep", defaultValue = "false")
     Supplier<Boolean> dynamicBoolDep;
 
-    @ConfigProperty(name = "app.properties.static.string", defaultValue = "default-value")
+    @ConfigProperty(name = "apicurio.properties.static.string", defaultValue = "default-value")
     String staticString;
 
     @GET
@@ -94,19 +94,19 @@ public class ConfigIndexResource {
     public ConfigProp getConfigProperty(@PathParam("propertyName") String propertyName) {
         String name = propertyName;
         String value = null;
-        if ("app.properties.dynamic.string".equals(propertyName)) {
+        if ("apicurio.properties.dynamic.string".equals(propertyName)) {
             value = dynamicString.get();
         }
-        if ("app.properties.dynamic.int".equals(propertyName)) {
+        if ("apicurio.properties.dynamic.int".equals(propertyName)) {
             value = dynamicInt.get().toString();
         }
-        if ("app.properties.dynamic.long".equals(propertyName)) {
+        if ("apicurio.properties.dynamic.long".equals(propertyName)) {
             value = dynamicLong.get().toString();
         }
-        if ("app.properties.dynamic.bool".equals(propertyName)) {
+        if ("apicurio.properties.dynamic.bool".equals(propertyName)) {
             value = dynamicBool.get().toString();
         }
-        if ("app.properties.dynamic.bool.dep".equals(propertyName)) {
+        if ("apicurio.properties.dynamic.bool.dep".equals(propertyName)) {
             value = dynamicBoolDep.get().toString();
         }
         return new ConfigProp(name, value);
@@ -115,7 +115,7 @@ public class ConfigIndexResource {
     @Path("/update")
     @GET
     public void updateBooleanProperty() {
-        DynamicConfigPropertyDto dto = new DynamicConfigPropertyDto("app.properties.dynamic.bool", "true");
+        DynamicConfigPropertyDto dto = new DynamicConfigPropertyDto("apicurio.properties.dynamic.bool", "true");
         this.storage.setConfigProperty(dto);
     }
 

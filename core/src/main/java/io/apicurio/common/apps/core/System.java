@@ -31,19 +31,19 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class System {
 
     @Inject
-    @ConfigProperty(name = "apicurio.name")
+    @ConfigProperty(name = "apicurio.app.name")
     String name;
 
     @Inject
-    @ConfigProperty(name = "apicurio.description")
+    @ConfigProperty(name = "apicurio.app.description")
     String description;
 
     @Inject
-    @ConfigProperty(name = "apicurio.version")
+    @ConfigProperty(name = "apicurio.app.version")
     String version;
 
     @Inject
-    @ConfigProperty(name = "apicurio.date")
+    @ConfigProperty(name = "apicurio.app.date")
     String date;
 
     public String getName() {

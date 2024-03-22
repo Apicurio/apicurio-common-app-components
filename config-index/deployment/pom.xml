@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.apicurio</groupId>
         <artifactId>apicurio-common-app-components</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>apicurio-common-app-components-config-index-deployment</artifactId>

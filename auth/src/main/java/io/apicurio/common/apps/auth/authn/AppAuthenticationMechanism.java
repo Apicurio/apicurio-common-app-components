@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import io.quarkus.arc.Unremovable;
+import io.quarkus.vertx.http.runtime.security.BasicAuthenticationMechanism;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -71,6 +73,7 @@ import jakarta.inject.Inject;
 @Alternative
 @Priority(1)
 @ApplicationScoped
+@Unremovable
 public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
@@ -115,6 +118,9 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     OidcAuthenticationMechanism oidcAuthenticationMechanism;
 
     @Inject
+    BasicAuthenticationMechanism basicAuthenticationMechanism;
+
+    @Inject
     AuditLogService auditLog;
 
     @Inject
@@ -144,22 +150,21 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
         if (authEnabled) {
             setAuditLogger(context);
-            if (fakeBasicAuthEnabled.get()) {
-                final Pair<String, String> clientCredentials = CredentialsHelper.extractCredentialsFromContext(context);
-                if (null != clientCredentials) {
-                    try {
-                        return authenticateWithClientCredentials(clientCredentials, context, identityProviderManager);
-                    } catch (AuthException | NotAuthorizedException ex) {
-                        log.warn(String.format("Exception trying to get an access token with client credentials with client id: %s", clientCredentials.getLeft()), ex);
-                        return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
-                    }
-                } else {
-                    return customAuthentication(context, identityProviderManager);
+            final Pair<String, String> clientCredentials = CredentialsHelper.extractCredentialsFromContext(context);
+            if (null != clientCredentials) {
+                try {
+                    return authenticateWithClientCredentials(clientCredentials, context, identityProviderManager);
+                } catch (AuthException | NotAuthorizedException ex) {
+                    log.warn(String.format("Exception trying to get an access token with client credentials with client id: %s", clientCredentials.getLeft()), ex);
+                    return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
                 }
             } else {
                 //Once we're done with it in the auth layer, the context must be cleared.
                 return customAuthentication(context, identityProviderManager);
             }
+        } else if (fakeBasicAuthEnabled.get()) {
+            setAuditLogger(context);
+            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
         } else {
             return Uni.createFrom().nullItem();
         }
@@ -222,7 +227,11 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Override
     public Uni<ChallengeData> getChallenge(RoutingContext context) {
-        return oidcAuthenticationMechanism.getChallenge(context);
+        if (fakeBasicAuthEnabled.get()) {
+            return basicAuthenticationMechanism.getChallenge(context);
+        } else {
+            return oidcAuthenticationMechanism.getChallenge(context);
+        }
     }
 
     @Override
@@ -238,15 +247,19 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     private Uni<SecurityIdentity> authenticateWithClientCredentials(Pair<String, String> clientCredentials, RoutingContext context, IdentityProviderManager identityProviderManager) {
         String jwtToken;
         String credentialsHash = getCredentialsHash(clientCredentials.getLeft() + clientCredentials.getRight());
-        if (authFailureIsCached(credentialsHash)) {
-            throw cachedAuthFailures.get(credentialsHash).getValue();
-        } else if (accessTokenIsCached(credentialsHash)) {
-            jwtToken = cachedAccessTokens.get(credentialsHash).getValue();
+        if (fakeBasicAuthEnabled.get()) {
+            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
         } else {
-            jwtToken = getAccessToken(clientCredentials, credentialsHash);
+            if (authFailureIsCached(credentialsHash)) {
+                throw cachedAuthFailures.get(credentialsHash).getValue();
+            } else if (accessTokenIsCached(credentialsHash)) {
+                jwtToken = cachedAccessTokens.get(credentialsHash).getValue();
+            } else {
+                jwtToken = getAccessToken(clientCredentials, credentialsHash);
+            }
+            context.request().headers().set("Authorization", "Bearer " + jwtToken);
+            return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
         }
-        context.request().headers().set("Authorization", "Bearer " + jwtToken);
-        return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
     }
 
     private boolean authFailureIsCached(String credentialsHash) {

@@ -29,7 +29,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.quarkus.arc.Unremovable;
-import io.quarkus.vertx.http.runtime.security.BasicAuthenticationMechanism;
+import io.quarkus.security.credential.PasswordCredential;
+import io.quarkus.security.identity.request.UsernamePasswordAuthenticationRequest;
+import io.quarkus.vertx.http.runtime.security.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -55,10 +57,6 @@ import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.identity.request.AuthenticationRequest;
 import io.quarkus.security.identity.request.TokenAuthenticationRequest;
-import io.quarkus.vertx.http.runtime.security.ChallengeData;
-import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
-import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
-import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
 import io.smallrye.jwt.auth.principal.DefaultJWTParser;
 import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.mutiny.Uni;
@@ -117,8 +115,8 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     @Inject
     OidcAuthenticationMechanism oidcAuthenticationMechanism;
 
-    @Inject
-    BasicAuthenticationMechanism basicAuthenticationMechanism;
+//    @Inject
+//    BasicAuthenticationMechanism basicAuthenticationMechanism;
 
     @Inject
     AuditLogService auditLog;
@@ -148,7 +146,9 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Override
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
+        log.error("DEBUG FROM HERE! " + authEnabled + " - " + fakeBasicAuthEnabled.get());
         if (authEnabled) {
+            log.error("OIDC IDENTITY PROVIDER ****************");
             setAuditLogger(context);
             final Pair<String, String> clientCredentials = CredentialsHelper.extractCredentialsFromContext(context);
             if (null != clientCredentials) {
@@ -163,9 +163,17 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
                 return customAuthentication(context, identityProviderManager);
             }
         } else if (fakeBasicAuthEnabled.get()) {
+            log.error("BASIC AUTH IDENTITY PROVIDER ****************");
             setAuditLogger(context);
-            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
+            final Pair<String, String> clientCredentials = CredentialsHelper.extractCredentialsFromContext(context);
+            UsernamePasswordAuthenticationRequest credential = new UsernamePasswordAuthenticationRequest(clientCredentials.getLeft(), new PasswordCredential(clientCredentials.getRight().toCharArray()));
+            HttpSecurityUtils.setRoutingContextAttribute(credential, context);
+            context.put(HttpAuthenticationMechanism.class.getName(), this);
+            return identityProviderManager.authenticate(credential);
+//            identityProviderManager.authenticate(clientCredentials)
+//            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
         } else {
+            log.error("RETURNING NULL ******************");
             return Uni.createFrom().nullItem();
         }
     }
@@ -228,7 +236,8 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     @Override
     public Uni<ChallengeData> getChallenge(RoutingContext context) {
         if (fakeBasicAuthEnabled.get()) {
-            return basicAuthenticationMechanism.getChallenge(context);
+            return Uni.createFrom().nullItem();
+//            return basicAuthenticationMechanism.getChallenge(context);
         } else {
             return oidcAuthenticationMechanism.getChallenge(context);
         }
@@ -236,7 +245,11 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Override
     public Set<Class<? extends AuthenticationRequest>> getCredentialTypes() {
-        return Collections.singleton(TokenAuthenticationRequest.class);
+        if (fakeBasicAuthEnabled.get()) {
+            return Collections.singleton(UsernamePasswordAuthenticationRequest.class);
+        } else {
+            return Collections.singleton(TokenAuthenticationRequest.class);
+        }
     }
 
     @Override
@@ -248,7 +261,7 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
         String jwtToken;
         String credentialsHash = getCredentialsHash(clientCredentials.getLeft() + clientCredentials.getRight());
         if (fakeBasicAuthEnabled.get()) {
-            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
+            return Uni.createFrom().nullItem();
         } else {
             if (authFailureIsCached(credentialsHash)) {
                 throw cachedAuthFailures.get(credentialsHash).getValue();

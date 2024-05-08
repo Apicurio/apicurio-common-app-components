@@ -256,7 +256,6 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     public Uni<HttpCredentialTransport> getCredentialTransport(RoutingContext context) {
         var enabledAuth = selectEnabledAuth();
         if (enabledAuth != null) {
-            // TODO: was new HttpCredentialTransport(HttpCredentialTransport.Type.AUTHORIZATION, "bearer");
             return enabledAuth.getCredentialTransport(context);
         } else {
             return Uni.createFrom().nullItem();

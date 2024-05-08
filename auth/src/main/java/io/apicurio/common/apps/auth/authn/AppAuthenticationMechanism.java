@@ -19,15 +19,13 @@ package io.apicurio.common.apps.auth.authn;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import io.quarkus.arc.Unremovable;
+import io.quarkus.vertx.http.runtime.security.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -52,11 +50,6 @@ import io.quarkus.oidc.runtime.OidcAuthenticationMechanism;
 import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.identity.request.AuthenticationRequest;
-import io.quarkus.security.identity.request.TokenAuthenticationRequest;
-import io.quarkus.vertx.http.runtime.security.ChallengeData;
-import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
-import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
-import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
 import io.smallrye.jwt.auth.principal.DefaultJWTParser;
 import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.mutiny.Uni;
@@ -71,16 +64,22 @@ import jakarta.inject.Inject;
 @Alternative
 @Priority(1)
 @ApplicationScoped
+@Unremovable
 public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
     @Info(category = "auth", description = "Enable auth", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.0.0.Final", studioAvailableSince = "1.0.0")
-    boolean authEnabled;
+    boolean oidcAuthEnabled;
 
+    // back to fake auth and use another property
     @Dynamic(label = "HTTP basic authentication", description = "When selected, users are permitted to authenticate using HTTP basic authentication (in addition to OAuth).", requires = "apicurio.authn.enabled=true")
     @ConfigProperty(name = "apicurio.authn.basic-client-credentials.enabled", defaultValue = "false")
     @Info(category = "auth", description = "Enable basic auth client credentials", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.1.0.Final", studioAvailableSince = "1.0.0")
-    Supplier<Boolean> fakeBasicAuthEnabled;
+    Supplier<Boolean> basicClientCredentialsAuthEnabled;
+
+    @ConfigProperty(name = "quarkus.http.auth.basic", defaultValue = "false")
+    @Info(category = "auth", description = "Enable basic auth", availableSince = "1.1.X-SNAPSHOT", registryAvailableSince = "3.X.X.Final", studioAvailableSince = "1.0.0")
+    boolean basicAuthEnabled;
 
     @ConfigProperty(name = "apicurio.authn.basic-client-credentials.cache-expiration", defaultValue = "10")
     @Info(category = "auth", description = "Default client credentials token expiration time.", availableSince = "0.1.18-SNAPSHOT", registryAvailableSince = "2.2.6.Final", studioAvailableSince = "1.0.0")
@@ -112,6 +111,9 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
     String clientId;
 
     @Inject
+    BasicAuthenticationMechanism basicAuthenticationMechanism;
+
+    @Inject
     OidcAuthenticationMechanism oidcAuthenticationMechanism;
 
     @Inject
@@ -133,18 +135,30 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @PostConstruct
     public void init() {
-        if (authEnabled) {
+        if (oidcAuthEnabled) {
             cachedAccessTokens = new ConcurrentHashMap<>();
             cachedAuthFailures = new ConcurrentHashMap<>();
             httpClient = new VertxHttpClientProvider(vertx).create(authServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
         }
     }
 
+    private HttpAuthenticationMechanism selectEnabledAuth() {
+        if (basicAuthEnabled) {
+            return basicAuthenticationMechanism;
+        } else if (oidcAuthEnabled) {
+            return oidcAuthenticationMechanism;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
-        if (authEnabled) {
+        if (basicAuthEnabled) {
+            return basicAuthenticationMechanism.authenticate(context, identityProviderManager);
+        } else if (oidcAuthEnabled) {
             setAuditLogger(context);
-            if (fakeBasicAuthEnabled.get()) {
+            if (basicClientCredentialsAuthEnabled.get()) {
                 final Pair<String, String> clientCredentials = CredentialsHelper.extractCredentialsFromContext(context);
                 if (null != clientCredentials) {
                     try {
@@ -222,17 +236,30 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Override
     public Uni<ChallengeData> getChallenge(RoutingContext context) {
-        return oidcAuthenticationMechanism.getChallenge(context);
+        var enabledAuth = selectEnabledAuth();
+        if (enabledAuth != null) {
+            return enabledAuth.getChallenge(context);
+        } else {
+            return Uni.createFrom().nullItem();
+        }
     }
 
     @Override
     public Set<Class<? extends AuthenticationRequest>> getCredentialTypes() {
-        return Collections.singleton(TokenAuthenticationRequest.class);
+        Set<Class<? extends AuthenticationRequest>> credentialTypes = new HashSet<>();
+        credentialTypes.addAll(oidcAuthenticationMechanism.getCredentialTypes());
+        credentialTypes.addAll(basicAuthenticationMechanism.getCredentialTypes());
+        return credentialTypes;
     }
 
     @Override
-    public HttpCredentialTransport getCredentialTransport() {
-        return new HttpCredentialTransport(HttpCredentialTransport.Type.AUTHORIZATION, "bearer");
+    public Uni<HttpCredentialTransport> getCredentialTransport(RoutingContext context) {
+        var enabledAuth = selectEnabledAuth();
+        if (enabledAuth != null) {
+            return enabledAuth.getCredentialTransport(context);
+        } else {
+            return Uni.createFrom().nullItem();
+        }
     }
 
     private Uni<SecurityIdentity> authenticateWithClientCredentials(Pair<String, String> clientCredentials, RoutingContext context, IdentityProviderManager identityProviderManager) {

@@ -37,8 +37,12 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.runtime.RuntimeValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ConfigIndexProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(ConfigIndexProcessor.class);
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
@@ -78,6 +82,9 @@ class ConfigIndexProcessor {
 
                         return def;
                     } catch (Exception e) {
+                        if (e.getMessage().contains("Not a parameterized type")) {
+                            log.error("Invalid type for @Dynamic config property (must be Supplier<Type>)");
+                        }
                         throw new RuntimeException(e);
                     }
                 })

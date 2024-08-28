@@ -90,7 +90,7 @@ public class VerifyDependenciesMojo extends AbstractMojo {
     }
 
     private boolean isValid(Artifact artifact) {
-        return artifact.getVersion().contains("-redhat-");
+        return artifact.getVersion().contains("-redhat-") || artifact.getVersion().contains(".redhat-");
     }
 
     private static String serialize(Set<Artifact> invalidArtifacts) {

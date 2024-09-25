@@ -97,7 +97,7 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <jackson.version>2.16.1</jackson.version>
         <sentry.version>1.7.30</sentry.version>
-        <junit.version>5.11.0</junit.version>
+        <junit.version>5.11.1</junit.version>
         <keycloak.testcontainers.version>1.9.0</keycloak.testcontainers.version>
         <keycloak-admin-client.version>21.1.2</keycloak-admin-client.version>
         <wiremock.version>2.35.2</wiremock.version>

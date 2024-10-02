@@ -1,82 +1,87 @@
 package io.apicurio.common.apps.maven;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.DefaultProjectBuildingRequest;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
-import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.dependency.graph.traversal.DependencyNodeVisitor;
 
-import java.util.Comparator;
-import java.util.HashSet;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 @Mojo(name = "verify-dependencies")
 public class VerifyDependenciesMojo extends AbstractMojo {
 
-    @Parameter(required = false, defaultValue = "compile,runtime")
-    String scopes;
+    @Parameter
+    List<String> fileTypes;
 
-    @Component
-    private MavenProject project;
+    @Parameter
+    List<File> directories;
 
-    @Component
-    private MavenSession session;
-
-    @Component(hint = "default")
-    private DependencyGraphBuilder dependencyGraphBuilder;
+    @Parameter
+    List<File> distributions;
 
     /**
      * @see org.apache.maven.plugin.Mojo#execute()
      */
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        ArtifactFilter filter = new ArtifactFilter() {
-            @Override
-            public boolean include(org.apache.maven.artifact.Artifact artifact) {
-                return true;
-            }
-        };
-
         try {
-            Set<String> matchingScopes = parseScopes(scopes);
+            if (fileTypes == null) {
+                fileTypes = List.of("jar");
+            }
+            if (directories == null) {
+                directories = List.of();
+            }
+            if (distributions == null) {
+                distributions = List.of();
+            }
 
-            ProjectBuildingRequest buildingRequest =
-                    new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
-            buildingRequest.setProject(project);
-            DependencyNode rootNode = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, filter);
+            getLog().info("Verifying dependencies in " + directories.size() + " directories");
 
-            Set<Artifact> invalidArtifacts = new TreeSet<>(new ArtifactComparator());
+            // Find the files we want to validate.
+            Set<String> filesToValidate = new TreeSet<>();
 
-            DependencyNodeVisitor visitor = new DependencyNodeVisitor() {
-
-                @Override
-                public boolean visit(DependencyNode dependencyNode) {
-                    Artifact artifact = dependencyNode.getArtifact();
-                    if (matchingScopes.contains(artifact.getScope())) {
-                        if (!isValid(artifact)) {
-                            invalidArtifacts.add(artifact);
-                        }
-                    }
-                    return true;
+            // Find files in configured directories.
+            for (File directory : directories) {
+                if (!directory.isDirectory()) {
+                    throw new MojoFailureException("Configured directory is not a directory: " + directory);
                 }
+                Path dirPath = directory.getCanonicalFile().toPath();
 
-                @Override
-                public boolean endVisit(DependencyNode dependencyNode) {
-                    return true;
+                filesToValidate.addAll(Files.list(dirPath)
+                        .filter(Files::isRegularFile)
+                        .filter(file -> isDependencyJarFile(file.toString()))
+                        .map(file -> dirPath.toString() + "::" + file.getFileName())
+                        .collect(Collectors.toSet()));
+            }
+
+            if (filesToValidate.isEmpty()) {
+                throw new MojoFailureException("Found 0 dependencies (from configured sources) to verify!");
+            }
+
+            // Find files in configured distributions.
+            for (File distribution : distributions) {
+                filesToValidate.addAll(findAllInZip(distribution));
+            }
+
+            // Validate those files.
+            Set<String> invalidArtifacts = new TreeSet<>();
+            filesToValidate.forEach(file -> {
+                if (!isValid(file)) {
+                    invalidArtifacts.add(file);
                 }
-            };
-            rootNode.accept(visitor);
+            });
 
             if (!invalidArtifacts.isEmpty()) {
                 String serializedInvalidArtifacts = serialize(invalidArtifacts);
@@ -89,41 +94,44 @@ public class VerifyDependenciesMojo extends AbstractMojo {
         }
     }
 
-    private boolean isValid(Artifact artifact) {
-        return artifact.getVersion().contains("-redhat-") || artifact.getVersion().contains(".redhat-");
+    private Set<String> findAllInZip(File distribution) throws IOException {
+        Set<String> foundFiles = new TreeSet<>();
+
+        try (ZipFile zipFile = new ZipFile(distribution)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (!entry.isDirectory()) {
+                    String entryName = entry.getName();
+                    if (isDependencyJarFile(entryName)) {
+                        foundFiles.add(distribution.getName() + "::" + entryName);
+                    }
+                }
+            }
+        }
+
+        return foundFiles;
     }
 
-    private static String serialize(Set<Artifact> invalidArtifacts) {
+    protected boolean isDependencyJarFile(String file) {
+        String fname = file;
+        int dotIdx = fname.lastIndexOf('.');
+        String extension = fname.substring(dotIdx + 1);
+        return fileTypes.indexOf(extension) != -1;
+    }
+
+    private boolean isValid(String artifactPath) {
+        return artifactPath.contains("-redhat-") || artifactPath.contains(".redhat-");
+    }
+
+    private static String serialize(Set<String> invalidArtifacts) {
         StringBuilder sb = new StringBuilder();
-        for (Artifact artifact : invalidArtifacts) {
+        for (String artifact : invalidArtifacts) {
             sb.append("    ");
-            sb.append(artifact.getGroupId()).append(":").append(artifact.getArtifactId()).append(":").append(artifact.getVersion());
-            sb.append(" [").append(artifact.getScope()).append("]");
+            sb.append(artifact);
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    private static Set<String> parseScopes(String scopes) {
-        Set<String> rval = new HashSet<>();
-        String[] splits = scopes.split(",");
-        for (String split : splits) {
-            split = split.trim();
-            if (!split.isEmpty()) {
-                rval.add(split);
-            }
-        }
-        return rval;
-    }
-
-    private static class ArtifactComparator implements Comparator<Artifact> {
-
-        @Override
-        public int compare(Artifact a1, Artifact a2) {
-            String a1s = a1.getGroupId() + ":" + a1.getArtifactId() + ":" + a1.getVersion();
-            String a2s = a2.getGroupId() + ":" + a2.getArtifactId() + ":" + a2.getVersion();
-            return a1s.compareTo(a2s);
-        }
     }
 
 }
